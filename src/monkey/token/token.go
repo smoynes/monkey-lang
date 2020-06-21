@@ -18,7 +18,7 @@ const (
 	INT = "INT"
 
 	// Operators
-	ASSIGN   = "="
+	ASSIGN   = "ASSIGN"
 	PLUS     = "+"
 	MINUS    = "-"
 	BANG     = "!"
@@ -26,9 +26,9 @@ const (
 	ASTERISK = "*"
 
 	// Comparison operators
-	LT     = "<"
-	GT     = ">"
-	EQ     = "=="
+	LT  = "<"
+	GT  = ">"
+	EQ  = "=="
 	NEQ = "!="
 
 	// Delimiters

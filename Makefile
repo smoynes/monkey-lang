@@ -4,9 +4,9 @@ export GOPATH
 all: test
 
 build:
-	go build lexer token
+	go build monkey/lexer
 
 test:
-	go test lexer
+	go test monkey/lexer
 
 .IGNORE: build test all
