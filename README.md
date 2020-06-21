@@ -1,3 +1,9 @@
 # Monkey Lang
 
-An interpreter.
+An pedagogical interpreter.
+
+## Quickstart
+
+```
+make
+```
