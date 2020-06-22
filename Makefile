@@ -1,15 +1,15 @@
 GOPATH := $(PWD)
 export GOPATH
 
-all: test
+DEFAULT: build
 
 run:
 	go run monkey
 
 build:
-	go build monkey/lexer monkey/token monkey/repl monkey
+	go build monkey monkey/ast monkey/token monkey/lexer
 
 test:
-	go test monkey/lexer
+	go test monkey/lexer monkey/parser
 
 .IGNORE: build test all
