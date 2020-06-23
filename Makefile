@@ -7,9 +7,9 @@ run:
 	go run monkey
 
 build:
-	go build monkey monkey/ast monkey/token monkey/lexer monkey/parser
+	go build monkey monkey/ast monkey/evaluator monkey/lexer monkey/object monkey/parser monkey/token
 
 test:
-	go test monkey/lexer monkey/parser monkey/ast
+	go test monkey/lexer monkey/parser monkey/ast monkey/object monkey/evaluator
 
 .IGNORE: build test all
