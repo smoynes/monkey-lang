@@ -30,6 +30,7 @@ const (
 	PRODUCT
 	PREFIX
 	CALL
+	INDEX
 )
 
 type (
@@ -46,7 +47,8 @@ var precedences = map[token.TokenType]int{
 	token.MINUS:    SUM,
 	token.SLASH:    PRODUCT,
 	token.ASTERISK: PRODUCT,
-	token.LPAREN: CALL,
+	token.LPAREN:   CALL,
+	token.LBRACKET: INDEX,
 }
 
 func New(lex *lexer.Lexer) *Parser {
@@ -64,6 +66,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parser.registerPrefix(token.IF, parser.parseIfExpression)
 	parser.registerPrefix(token.FUNCTION, parser.parseFunctionLiteral)
 	parser.registerPrefix(token.STRING, parser.parseStringLiteral)
+	parser.registerPrefix(token.LBRACKET, parser.parseArrayLiteral)
 
 	parser.infixParseFns = make(map[token.TokenType]infixParseFn)
 	parser.registerInfix(token.PLUS, parser.parseInfixExpression)
@@ -77,6 +80,9 @@ func New(lex *lexer.Lexer) *Parser {
 
 	// Call expressions have an infix paren: ident _(_ arg , ... )
 	parser.registerInfix(token.LPAREN, parser.parseCallExpression)
+
+	// Similarly, index expressions have infix bracket: ident _[_ index ]
+	parser.registerInfix(token.LBRACKET, parser.parseIndexExpression)
 
 	// Prime current token and peek token.
 	parser.nextToken()
@@ -92,8 +98,8 @@ func (parser *Parser) nextToken() {
 	parser.peekToken = parser.lexer.NextToken()
 }
 
-func (p *Parser) currentTokenIs(t token.TokenType) bool  { return p.currentToken.Type == t }
-func (p *Parser) peekTokenIs(t token.TokenType) bool { return p.peekToken.Type == t }
+func (p *Parser) currentTokenIs(t token.TokenType) bool { return p.currentToken.Type == t }
+func (p *Parser) peekTokenIs(t token.TokenType) bool    { return p.peekToken.Type == t }
 
 func (p *Parser) expectPeek(t token.TokenType) bool {
 	if p.peekTokenIs(t) {
@@ -111,7 +117,7 @@ func (p *Parser) peekError(t token.TokenType) {
 	p.errors = append(p.errors, msg)
 }
 
-func (parser *Parser) currentPrecendence() int{
+func (parser *Parser) currentPrecendence() int {
 	if p, ok := precedences[parser.currentToken.Type]; ok {
 		return p
 	} else {
@@ -419,38 +425,11 @@ func (parser *Parser) parseFunctionParameters() []*ast.Identifier {
 
 func (parser *Parser) parseCallExpression(function ast.Expression) ast.Expression {
 	expression := &ast.CallExpression{
-		Token : parser.currentToken,
+		Token:    parser.currentToken,
 		Function: function,
 	}
-	expression.Arguments = parser.parseCallArguments()
+	expression.Arguments = parser.parseExpressionList(token.RPAREN)
 	return expression
-}
-
-func (parser *Parser) parseCallArguments() []ast.Expression {
-	args := []ast.Expression{}
-
-	if parser.peekTokenIs(token.RPAREN) {
-		// no arguments
-		parser.nextToken()
-		return args
-	}
-
-	parser.nextToken()
-
-	args = append(args, parser.parseExpression(LOWEST))
-
-	// For each comma separated expression
-	for parser.peekTokenIs(token.COMMA) {
-		parser.nextToken()
-		parser.nextToken()
-		args = append(args, parser.parseExpression(LOWEST))
-	}
-
-	if !parser.expectPeek(token.RPAREN) {
-		return nil
-	}
-
-	return args
 }
 
 func (parser *Parser) parseStringLiteral() ast.Expression {
@@ -458,4 +437,47 @@ func (parser *Parser) parseStringLiteral() ast.Expression {
 		Token: parser.currentToken,
 		Value: parser.currentToken.Literal,
 	}
+}
+
+func (parser *Parser) parseArrayLiteral() ast.Expression {
+	array := &ast.ArrayLiteral{Token: parser.currentToken}
+	array.Elements = parser.parseExpressionList(token.RBRACKET)
+	return array
+}
+
+func (parser *Parser) parseExpressionList(end token.TokenType) []ast.Expression {
+	list := []ast.Expression{}
+
+	if parser.peekTokenIs(end) {
+		parser.nextToken()
+		return list
+	}
+
+	parser.nextToken()
+	list = append(list, parser.parseExpression(LOWEST))
+
+	for parser.peekTokenIs(token.COMMA) {
+		parser.nextToken()
+		parser.nextToken()
+		list = append(list, parser.parseExpression(LOWEST))
+	}
+	if !parser.expectPeek(end) {
+		return nil
+	}
+	return list
+}
+
+func (parser *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
+	exp := &ast.IndexExpression{Token: parser.currentToken, Left: left}
+
+	// Consume [
+	parser.nextToken()
+
+	exp.Index = parser.parseExpression(LOWEST)
+
+	if !parser.expectPeek(token.RBRACKET) {
+		return nil
+	}
+
+	return exp
 }
