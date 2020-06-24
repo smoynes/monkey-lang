@@ -25,6 +25,8 @@ if (6 < 7) {
 
 8 == 9;
 10 != 11
+"foobar"
+"foo bar"
 `
 	tests := []struct {
 		expectedType    token.TokenType
@@ -102,6 +104,8 @@ if (6 < 7) {
 		{token.INT, "10"},
 		{token.NEQ, "!="},
 		{token.INT, "11"},
+		{token.STRING, "foobar"},
+		{token.STRING, "foo bar"},
 		{token.EOF, ""},
 	}
 

@@ -17,6 +17,9 @@ const (
 	// Integer literals
 	INT = "INT"
 
+	// String literals
+	STRING = "STRING"
+
 	// Operators
 	ASSIGN   = "ASSIGN"
 	PLUS     = "+"

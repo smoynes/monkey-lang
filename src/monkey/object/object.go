@@ -17,6 +17,8 @@ const (
 	RETURN_OBJ   = "RETURN"
 	ERROR_OBJ    = "ERROR"
 	FUNCTION_OBJ = "FUNCTION"
+	STRING_OBJ   = "STRING"
+	BUILTIN_OBJ  = "BUILTIN"
 )
 
 type Object interface {
@@ -70,7 +72,6 @@ type Function struct {
 }
 
 func (f *Function) Type() ObjectType { return FUNCTION_OBJ }
-
 func (f *Function) Inspect() string {
 	var out bytes.Buffer
 	params := []string{}
@@ -85,3 +86,20 @@ func (f *Function) Inspect() string {
 	out.WriteString("\n}")
 	return out.String()
 }
+
+type String struct {
+	Value string
+}
+
+func (s *String) Type() ObjectType { return STRING_OBJ }
+func (s *String) Inspect() string  { return s.Value }
+
+type BuiltinFunction func(args ...Object) Object
+
+type Builtin struct {
+	Fn BuiltinFunction
+}
+
+func(*Builtin) Type() ObjectType { return BUILTIN_OBJ}
+func(*Builtin) Inspect() string { return "builtin function"}
+
