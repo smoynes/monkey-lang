@@ -5,6 +5,7 @@ import (
 
 	"monkey/token"
 )
+
 func TestNextToken(t *testing.T) {
 	input := `let five = 5;
 let ten = 10;
@@ -14,21 +15,23 @@ let add = fn(x, y) {
 };
 
 let result = add(five, ten);
-!-/*1;
-2 < 3 > 4;
+!-/*5;
+5 < 10 > 5;
 
-if (6 < 7) {
+if (5 < 10) {
 	return true;
 } else {
 	return false;
 }
 
-8 == 9;
-10 != 11
+10 == 10;
+10 != 9;
 "foobar"
 "foo bar"
-[1, 2]
+[1, 2];
+{"foo": "bar"}
 `
+
 	tests := []struct {
 		expectedType    token.TokenType
 		expectedLiteral string
@@ -73,19 +76,19 @@ if (6 < 7) {
 		{token.MINUS, "-"},
 		{token.SLASH, "/"},
 		{token.ASTERISK, "*"},
-		{token.INT, "1"},
+		{token.INT, "5"},
 		{token.SEMICOLON, ";"},
-		{token.INT, "2"},
+		{token.INT, "5"},
 		{token.LT, "<"},
-		{token.INT, "3"},
+		{token.INT, "10"},
 		{token.GT, ">"},
-		{token.INT, "4"},
+		{token.INT, "5"},
 		{token.SEMICOLON, ";"},
 		{token.IF, "if"},
 		{token.LPAREN, "("},
-		{token.INT, "6"},
+		{token.INT, "5"},
 		{token.LT, "<"},
-		{token.INT, "7"},
+		{token.INT, "10"},
 		{token.RPAREN, ")"},
 		{token.LBRACE, "{"},
 		{token.RETURN, "return"},
@@ -98,13 +101,14 @@ if (6 < 7) {
 		{token.FALSE, "false"},
 		{token.SEMICOLON, ";"},
 		{token.RBRACE, "}"},
-		{token.INT, "8"},
+		{token.INT, "10"},
 		{token.EQ, "=="},
-		{token.INT, "9"},
+		{token.INT, "10"},
 		{token.SEMICOLON, ";"},
 		{token.INT, "10"},
 		{token.NEQ, "!="},
-		{token.INT, "11"},
+		{token.INT, "9"},
+		{token.SEMICOLON, ";"},
 		{token.STRING, "foobar"},
 		{token.STRING, "foo bar"},
 		{token.LBRACKET, "["},
@@ -112,6 +116,12 @@ if (6 < 7) {
 		{token.COMMA, ","},
 		{token.INT, "2"},
 		{token.RBRACKET, "]"},
+		{token.SEMICOLON, ";"},
+		{token.LBRACE, "{"},
+		{token.STRING, "foo"},
+		{token.COLON, ":"},
+		{token.STRING, "bar"},
+		{token.RBRACE, "}"},
 		{token.EOF, ""},
 	}
 
@@ -121,7 +131,7 @@ if (6 < 7) {
 		tok := l.NextToken()
 
 		if tok.Type != tt.expectedType {
-			t.Errorf("tests[%d] - tokentype wrong. expected=%q, got=%q",
+			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
 				i, tt.expectedType, tok.Type)
 		}
 
@@ -131,3 +141,4 @@ if (6 < 7) {
 		}
 	}
 }
+
