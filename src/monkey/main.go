@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path"
 
 	"monkey/evaluator"
 	"monkey/lexer"
@@ -14,16 +15,20 @@ import (
 	"monkey/repl"
 )
 
-var interactive = flag.Bool("i", false, "interactive REPL")
+var interactive = flag.Bool("i", false, "interactive mode")
 
 func main() {
+	flag.Usage = func() {
+		fmt.Fprintf(flag.CommandLine.Output(), "Usage: %s [-i] [<filename>]\n", path.Base(os.Args[0]))
+		flag.PrintDefaults()
+		os.Exit(0)
+	}
 	flag.Parse()
 
 	if *interactive {
 		startRepl()
 	} else {
-		if flag.NArg() == 0 {
-			os.Stderr.WriteString("no filename")
+		if flag.NArg() != 1 {
 			flag.Usage()
 		}
 		startCommand(flag.Arg(0))
@@ -36,6 +41,12 @@ func startRepl() {
 }
 
 func startCommand(filename string) {
+	flag.Usage = func() {
+		fmt.Fprintf(flag.CommandLine.Output(), "Usage: %s [options] [<filename>]\n", path.Base(os.Args[0]))
+		flag.PrintDefaults()
+		os.Exit(0)
+	}
+
 	inputFile, err := os.Open(filename)
 	if err != nil {
 		os.Stderr.WriteString(filename)
