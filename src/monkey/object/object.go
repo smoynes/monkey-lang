@@ -99,7 +99,13 @@ type String struct {
 }
 
 func (s *String) Type() ObjectType { return STRING_OBJ }
-func (s *String) Inspect() string  { return s.Value }
+func (s *String) Inspect() string  {
+	var out bytes.Buffer
+	out.WriteString("\"")
+	out.WriteString(s.Value)
+	out.WriteString("\"")
+	return out.String()
+}
 
 type BuiltinFunction func(args ...Object) Object
 
