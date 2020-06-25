@@ -27,7 +27,8 @@ const (
 	BANG     = "!"
 	SLASH    = "/"
 	ASTERISK = "*"
-
+	TILDE    = "~"
+	
 	// Comparison operators
 	LT  = "<"
 	GT  = ">"

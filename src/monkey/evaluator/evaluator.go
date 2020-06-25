@@ -228,7 +228,7 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 }
 
 func evalStringInfixExpression(operator string, left, right object.Object) object.Object {
-	if operator != "+" {
+	if operator != "~" {
 		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
 	}
 

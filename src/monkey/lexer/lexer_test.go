@@ -28,6 +28,7 @@ if (5 < 10) {
 10 != 9;
 "foobar"
 "foo bar"
+"foo" ~ "bar"
 [1, 2];
 {"foo": "bar"}
 `
@@ -111,6 +112,9 @@ if (5 < 10) {
 		{token.SEMICOLON, ";"},
 		{token.STRING, "foobar"},
 		{token.STRING, "foo bar"},
+		{token.STRING, "foo"},
+		{token.TILDE, "~"},
+		{token.STRING, "bar"},
 		{token.LBRACKET, "["},
 		{token.INT, "1"},
 		{token.COMMA, ","},
