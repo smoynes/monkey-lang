@@ -285,7 +285,7 @@ func evalIdentifier(ident *ast.Identifier, env *object.Environment) object.Objec
 		return val
 	}
 
-	if val, ok := builtins[ident.Value]; ok {
+	if val, ok := object.Builtins[ident.Value]; ok {
 		return val
 	}
 
@@ -317,14 +317,21 @@ func evalExpressions(exps []ast.Expression, env *object.Environment) []object.Ob
 }
 
 func applyFunction(function object.Object, args []object.Object) object.Object {
+	var evaluated object.Object
+
 	switch fn := function.(type) {
 	case *object.Function:
 		extendedEnv := extendFunctionEnv(fn, args)
-		evaluated := Eval(fn.Body, extendedEnv)
+		evaluated = Eval(fn.Body, extendedEnv)
 		return unwrapReturnValue(evaluated)
 
 	case *object.Builtin:
-		return fn.Fn(args...)
+		evaluated = fn.Fn(args...)
+		if evaluated == nil {
+			return NULL
+		} else {
+			return evaluated
+		}
 
 	default:
 		return newError("not a function: %s", function.Type())

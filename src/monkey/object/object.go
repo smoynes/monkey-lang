@@ -65,6 +65,10 @@ type ReturnValue struct {
 func (*ReturnValue) Type() ObjectType  { return RETURN_OBJ }
 func (r *ReturnValue) Inspect() string { return r.Value.Inspect() }
 
+func newError(format string, a ...interface{}) *Error {
+	return &Error{Message: fmt.Sprintf(format, a...)}
+}
+
 type Error struct {
 	Message string
 }
