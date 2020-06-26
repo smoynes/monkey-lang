@@ -48,6 +48,18 @@ func (p *Program) String() string {
 	return out.String()
 }
 
+// Comment nodes
+type CommentStatement struct {
+	Token   token.Token
+	Comment string
+}
+
+func (comm *CommentStatement) statementNode()       {}
+func (comm *CommentStatement) TokenLiteral() string { return comm.Token.Literal }
+func (comm *CommentStatement) String() string {
+	return comm.Comment
+}
+
 // Let statements bind a value to a name.
 type LetStatement struct {
 	Token token.Token

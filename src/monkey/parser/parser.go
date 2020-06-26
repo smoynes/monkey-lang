@@ -165,6 +165,8 @@ func (parser *Parser) parseStatement() ast.Statement {
 		return parser.parseLetStatement()
 	case token.RETURN:
 		return parser.parseReturnStatement()
+	case token.COMMENT:
+		return parser.parseCommentStatement()
 	default:
 		return parser.parseExpressionStatement()
 	}
@@ -513,4 +515,12 @@ func (parser *Parser) parseHashLiteral() ast.Expression {
 	}
 
 	return hash
+}
+
+func (parser *Parser) parseCommentStatement() ast.Statement {
+	statement := &ast.CommentStatement{
+		Token: parser.currentToken,
+		Comment: parser.currentToken.Literal,
+	}
+	return statement
 }

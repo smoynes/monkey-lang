@@ -28,7 +28,7 @@ const (
 	SLASH    = "/"
 	ASTERISK = "*"
 	TILDE    = "~"
-	
+
 	// Comparison operators
 	LT  = "<"
 	GT  = ">"
@@ -54,6 +54,9 @@ const (
 	RETURN   = "RETURN"
 	TRUE     = "TRUE"
 	FALSE    = "FALSE"
+
+	// Block comments
+	COMMENT = "COMMENT"
 )
 
 type Token struct {

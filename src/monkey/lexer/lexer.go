@@ -85,7 +85,9 @@ func (l *Lexer) NextToken() token.Token {
 		tok.Literal = l.readString()
 	case ':':
 		tok = newToken(token.COLON, l.ch)
-
+	case '#':
+		tok.Type = token.COMMENT
+		tok.Literal = l.readEndOfLine()
 	case 0:
 		// No more tokens.
 		tok.Type = token.EOF
@@ -125,6 +127,18 @@ func (l *Lexer) readString() string {
 	for {
 		l.readChar()
 		if l.ch == '"' || l.ch == 0 {
+			break
+		}
+	}
+
+	return l.input[position:l.position]
+}
+
+func (l *Lexer) readEndOfLine() string {
+	position := l.position +1
+	for {
+		l.readChar()
+		if l.ch == '\n' || l.ch == 0 {
 			break
 		}
 	}

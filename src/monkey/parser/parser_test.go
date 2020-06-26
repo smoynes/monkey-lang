@@ -936,6 +936,26 @@ func TestParsingHashLiteralsWithExpressions(t *testing.T) {
 	}
 }
 
+func TestParseComment(t *testing.T) {
+	input := "# comment"
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	comment, ok := program.Statements[0].(*ast.CommentStatement)
+
+	if !ok {
+		t.Fatalf("statement is not ast.CommentStatement. got=%T", comment)
+	}
+
+	if comment.Comment != " comment" {
+		t.Errorf("comment.Comment is not \" comment\". got=%s", comment.Comment)
+	}
+
+}
+
 func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
 	if s.TokenLiteral() != "let" {
 		t.Errorf("s.TokenLiteral not 'let'. got=%q", s.TokenLiteral())
@@ -1080,6 +1100,3 @@ func checkParserErrors(t *testing.T, p *Parser) {
 	}
 	t.FailNow()
 }
-
-
-

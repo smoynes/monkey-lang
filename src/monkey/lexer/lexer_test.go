@@ -7,7 +7,8 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := `let five = 5;
+	input := `
+let five = 5;
 let ten = 10;
 
 let add = fn(x, y) {
@@ -31,7 +32,8 @@ if (5 < 10) {
 "foo" ~ "bar"
 [1, 2];
 {"foo": "bar"}
-`
+1 # comment eol
+# comment eof`
 
 	tests := []struct {
 		expectedType    token.TokenType
@@ -126,6 +128,9 @@ if (5 < 10) {
 		{token.COLON, ":"},
 		{token.STRING, "bar"},
 		{token.RBRACE, "}"},
+		{token.INT, "1"},
+		{token.COMMENT, " comment eol"},
+		{token.COMMENT, " comment eof"},
 		{token.EOF, ""},
 	}
 

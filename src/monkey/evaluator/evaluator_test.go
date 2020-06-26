@@ -497,6 +497,19 @@ func TestArrayIndexExpressions(t *testing.T) {
 	}
 }
 
+func TestComments(t *testing.T) {
+	input := `
+1 # comment
+#comment
+`
+	evaluated := testEval(input)
+	if evaluated != nil {
+		t.Fatalf("Eval didnt return nil. got=%T (%+v)", evaluated, evaluated)
+	}
+
+
+}
+
 func TestHashLiterals(t *testing.T) {
 	input := `let two = "two";
 	{
