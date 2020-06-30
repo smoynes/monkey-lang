@@ -151,3 +151,51 @@ if (5 < 10) {
 	}
 }
 
+func TestTokenLocation(t *testing.T) {
+	input := `
+1
+12345
+var one = 1
+1 == one
+one = 1
+# comment
+1 != 2
+"foo"
+1
+`
+
+	locations := []token.Location{
+		token.Location{1, 1},
+		token.Location{2, 1},
+		token.Location{3, 1},
+		token.Location{3, 5},
+		token.Location{3, 9},
+		token.Location{3, 11},
+		token.Location{4, 1},
+		token.Location{4, 3},
+		token.Location{4, 6},
+		token.Location{5, 1},
+		token.Location{5, 5},
+		token.Location{5, 7},
+		token.Location{6, 1},
+		token.Location{7, 1},
+		token.Location{7, 3},
+		token.Location{7, 6},
+		token.Location{8, 1},
+		token.Location{9, 1},
+	}
+
+	l := New(input)
+
+	for i, loc := range locations {
+		tok := l.NextToken()
+
+		if (loc != token.Location{0, 0} &&
+			loc != tok.Location) {
+			t.Errorf("tests[%d] - location wrong. "+
+				"expected line %d, col %d, got line %d, col %d, val %v",
+				i, loc.Line, loc.Column,
+				tok.Location.Line, tok.Location.Column, tok.Type)
+		}
+	}
+}

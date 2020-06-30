@@ -59,9 +59,33 @@ const (
 	COMMENT = "COMMENT"
 )
 
+func NewTokenFromCharacter(t TokenType, ch byte, loc Location) Token {
+	return Token{
+		Type:     t,
+		Literal:  string(ch),
+		Location: loc,
+	}
+}
+
+func NewTokenFromLiteral(t TokenType, lit string, loc Location) Token {
+	newLoc := loc
+	newLoc.Column -= len(lit) - 1
+	return Token{
+		Type: t,
+		Literal: lit,
+		Location: newLoc,
+	}
+}
+
 type Token struct {
-	Type    TokenType
-	Literal string
+	Type     TokenType
+	Literal  string
+	Location Location
+}
+
+type Location struct {
+	Line   int
+	Column int
 }
 
 var keywords = map[string]TokenType{
