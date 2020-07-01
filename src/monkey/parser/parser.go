@@ -232,8 +232,7 @@ func (parser *Parser) parseIntegerLiteral() ast.Expression {
 
 	value, err := strconv.ParseInt(parser.currentToken.Literal, 0, 64)
 	if err != nil {
-		msg := fmt.Sprintf("could not parse %q as int", parser.currentToken)
-		parser.errors = append(parser.errors, msg)
+		parser.integerTypeError()
 		return nil
 	}
 
@@ -246,7 +245,7 @@ func (parser *Parser) parseExpression(precedence int) ast.Expression {
 	prefix := parser.prefixParseFns[parser.currentToken.Type]
 
 	if prefix == nil {
-		parser.noPrefixParseFnError(parser.currentToken)
+		parser.noPrefixParseFnError()
 		return nil
 	}
 
@@ -277,9 +276,21 @@ func (p *Parser) peekError(t token.TokenType) {
 	p.errors = append(p.errors, msg)
 }
 
-func (p *Parser) noPrefixParseFnError(t token.Token) {
-	msg := fmt.Sprintf("%d:%d:no prefix parse function for %s found",
-		t.Location.Line, t.Location.Column, t.Type)
+func (p *Parser) integerTypeError() {
+	msg := fmt.Sprintf(
+		"%d:%dcould not parse %q as int",
+		p.currentToken.Location.Line,
+		p.currentToken.Location.Column,
+		p.currentToken)
+	p.errors = append(p.errors, msg)
+}
+
+func (p *Parser) noPrefixParseFnError() {
+	msg := fmt.Sprintf(
+		"%d:%d:no prefix parse function for %s found",
+		p.currentToken.Location.Line,
+		p.currentToken.Location.Column,
+		p.currentToken.Type)
 	p.errors = append(p.errors, msg)
 }
 
