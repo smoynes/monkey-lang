@@ -265,35 +265,6 @@ func (parser *Parser) parseExpression(precedence int) ast.Expression {
 	return leftExp
 }
 
-func (p *Parser) peekError(t token.TokenType) {
-	msg := fmt.Sprintf(
-		"%d:%d:expected next token to be %s, got %s",
-		p.peekToken.Location.Line,
-		p.peekToken.Location.Column,
-		t,
-		p.peekToken.Type,
-	)
-	p.errors = append(p.errors, msg)
-}
-
-func (p *Parser) integerTypeError() {
-	msg := fmt.Sprintf(
-		"%d:%dcould not parse %q as int",
-		p.currentToken.Location.Line,
-		p.currentToken.Location.Column,
-		p.currentToken)
-	p.errors = append(p.errors, msg)
-}
-
-func (p *Parser) noPrefixParseFnError() {
-	msg := fmt.Sprintf(
-		"%d:%d:no prefix parse function for %s found",
-		p.currentToken.Location.Line,
-		p.currentToken.Location.Column,
-		p.currentToken.Type)
-	p.errors = append(p.errors, msg)
-}
-
 func (parser *Parser) parsePrefixExpression() ast.Expression {
 	expression := &ast.PrefixExpression{
 		Token:    parser.currentToken,
@@ -394,10 +365,29 @@ func (parser *Parser) parseBlockStatement() *ast.BlockStatement {
 }
 
 func (parser *Parser) parseFunctionLiteral() ast.Expression {
-	expression := &ast.FunctionLiteral{Token: parser.currentToken}
+	var expression *ast.FunctionLiteral
+	var ident *ast.Identifier
+
+	if parser.peekTokenIs(token.LPAREN) { // anonymous function literal
+		ident = &ast.Identifier{
+			Token: parser.currentToken,
+			Value: "",
+		}
+	} else if parser.peekTokenIs(token.IDENT) {
+		parser.nextToken()
+		ident = parser.parseIdentifier().(*ast.Identifier)
+	} else {
+		parser.parseFunctionLiteralError()
+		return nil
+	}
 
 	if !parser.expectPeek(token.LPAREN) {
 		return nil
+	}
+
+	expression = &ast.FunctionLiteral{
+		Ident: ident,
+		Token: parser.currentToken,
 	}
 
 	expression.Parameters = parser.parseFunctionParameters()
@@ -540,4 +530,42 @@ func (parser *Parser) parseCommentStatement() ast.Statement {
 		Comment: parser.currentToken.Literal,
 	}
 	return statement
+}
+
+func (p *Parser) peekError(t token.TokenType) {
+	msg := fmt.Sprintf(
+		"%d:%d:expected next token to be %s, got %s",
+		p.peekToken.Location.Line,
+		p.peekToken.Location.Column,
+		t,
+		p.peekToken.Type,
+	)
+	p.errors = append(p.errors, msg)
+}
+
+func (p *Parser) integerTypeError() {
+	msg := fmt.Sprintf(
+		"%d:%dcould not parse %q as int",
+		p.currentToken.Location.Line,
+		p.currentToken.Location.Column,
+		p.currentToken)
+	p.errors = append(p.errors, msg)
+}
+
+func (p *Parser) noPrefixParseFnError() {
+	msg := fmt.Sprintf(
+		"%d:%d:no prefix parse function for %s found",
+		p.currentToken.Location.Line,
+		p.currentToken.Location.Column,
+		p.currentToken.Type)
+	p.errors = append(p.errors, msg)
+}
+
+func (p *Parser) parseFunctionLiteralError() {
+	msg := fmt.Sprintf(
+		"%d:%d:expected identifier or argument list in function literal, got %q",
+		p.peekToken.Location.Line,
+		p.peekToken.Location.Column,
+		p.peekToken.Type)
+	p.errors = append(p.errors, msg)
 }

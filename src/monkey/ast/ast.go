@@ -236,6 +236,7 @@ func (bs *BlockStatement) String() string {
 // Function literal expressions
 type FunctionLiteral struct {
 	Token      token.Token
+	Ident      *Identifier
 	Parameters []*Identifier
 	Body       *BlockStatement
 }

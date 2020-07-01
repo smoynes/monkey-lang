@@ -221,6 +221,10 @@ if (10 > 1) {
 			`999[1]`,
 			"index operator not supported: INTEGER",
 		},
+		{
+			`fn foo() { return fn bar() { return 1 } }; let a = foo() ; bar()`,
+			"identifier not found: bar",
+		},
 	}
 
 	for _, tt := range tests {
@@ -253,6 +257,26 @@ func TestLetStatements(t *testing.T) {
 
 	for _, tt := range tests {
 		testIntegerObject(t, tt.input, testEval(tt.input), tt.expected)
+	}
+}
+
+func TestFunctionDeclaration(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"fn foo() { return 1 }; foo()", 1},
+		{"fn foo() { return fn bar() { return 2 } }; let b = foo() ; b()", 2},
+		{"fn foo() { return 1 } ; fn foo() { return 2 }; foo()", 2},
+		{`fn foo() { fn a() { return 1 }
+                             return fn () { return a() } }
+                  let b = foo()
+                  b()`, 1},
+	}
+
+	for _, tt := range tests {
+		evaled := testEval(tt.input)
+		testIntegerObject(t, tt.input, evaled, tt.expected)
 	}
 }
 
@@ -506,7 +530,6 @@ func TestComments(t *testing.T) {
 	if evaluated != nil {
 		t.Fatalf("Eval didnt return nil. got=%T (%+v)", evaluated, evaluated)
 	}
-
 
 }
 
