@@ -70,6 +70,6 @@ func startCommand(filename string) {
 
 func printParseErrors(out io.Writer, errors []string) {
 	for _, msg := range errors {
-		io.WriteString(out, "\t"+msg+"\n")
+		io.WriteString(out, "ERROR\t"+msg+"\n")
 	}
 }

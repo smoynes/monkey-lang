@@ -114,17 +114,6 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 	}
 }
 
-func (p *Parser) peekError(t token.TokenType) {
-	msg := fmt.Sprintf(
-		"%d:%d:expected next token to be %s, got %s instead",
-		p.peekToken.Location.Line,
-		p.peekToken.Location.Column,
-		t,
-		p.peekToken.Type,
-	)
-	p.errors = append(p.errors, msg)
-}
-
 func (parser *Parser) currentPrecendence() int {
 	if p, ok := precedences[parser.currentToken.Type]; ok {
 		return p
@@ -257,7 +246,7 @@ func (parser *Parser) parseExpression(precedence int) ast.Expression {
 	prefix := parser.prefixParseFns[parser.currentToken.Type]
 
 	if prefix == nil {
-		parser.noPrefixParseFnError(parser.currentToken.Type)
+		parser.noPrefixParseFnError(parser.currentToken)
 		return nil
 	}
 
@@ -277,8 +266,20 @@ func (parser *Parser) parseExpression(precedence int) ast.Expression {
 	return leftExp
 }
 
-func (p *Parser) noPrefixParseFnError(t token.TokenType) {
-	msg := fmt.Sprintf("no prefix parse function for %s found", t)
+func (p *Parser) peekError(t token.TokenType) {
+	msg := fmt.Sprintf(
+		"%d:%d:expected next token to be %s, got %s",
+		p.peekToken.Location.Line,
+		p.peekToken.Location.Column,
+		t,
+		p.peekToken.Type,
+	)
+	p.errors = append(p.errors, msg)
+}
+
+func (p *Parser) noPrefixParseFnError(t token.Token) {
+	msg := fmt.Sprintf("%d:%d:no prefix parse function for %s found",
+		t.Location.Line, t.Location.Column, t.Type)
 	p.errors = append(p.errors, msg)
 }
 
@@ -524,7 +525,7 @@ func (parser *Parser) parseHashLiteral() ast.Expression {
 
 func (parser *Parser) parseCommentStatement() ast.Statement {
 	statement := &ast.CommentStatement{
-		Token: parser.currentToken,
+		Token:   parser.currentToken,
 		Comment: parser.currentToken.Literal,
 	}
 	return statement
