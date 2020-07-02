@@ -41,6 +41,44 @@ func TestLetStatements(t *testing.T) {
 	}
 }
 
+func TestAssignmenntExpression(t *testing.T) {
+	test := "n = 1"
+
+	l := lexer.New(test)
+	p := New(l)
+	prog := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(prog.Statements) != 1 {
+		t.Fatalf("program.Statements does not contain 1 statements. got=%d",
+			len(prog.Statements))
+	}
+
+	stmt, ok := prog.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T",
+			prog.Statements[0])
+	}
+
+	assignStmt, ok := stmt.Expression.(*ast.AssignmentExpression)
+	if !ok {
+		t.Fatalf("stmt not *ast.AssignmentExpression. got=%T", stmt)
+	}
+
+	if assignStmt.TokenLiteral() != "=" {
+		t.Fatalf("TokenLiteral not '=', got %q",
+			assignStmt.TokenLiteral())
+	}
+
+	if testLiteralExpression(t, assignStmt.Name, "n") {
+		return
+	}
+
+	if testIntegerLiteral(t, assignStmt.Value, 1) {
+		return
+	}
+}
+
 func TestReturnStatements(t *testing.T) {
 	tests := []struct {
 		input         string
@@ -348,6 +386,10 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 		{
 			"add(a * b[2], b[1], 2 * [1, 2][1])",
 			"add((a * (b[2])), (b[1]), (2 * ([1, 2][1])))",
+		},
+		{
+			"a = b < c + 1",
+			"a = (b < (c + 1))",
 		},
 	}
 

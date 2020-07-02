@@ -127,6 +127,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 
 	case *ast.WhileExpression:
 		return evalWhileExpression(node, env)
+
+	case *ast.AssignmentExpression:
+		return evalAssignmentExpression(node, env)
 	}
 
 	panicMsg := fmt.Sprintf("unhandled AST node: %T", node)
@@ -437,6 +440,28 @@ func evalWhileExpression(we *ast.WhileExpression, env *object.Environment) objec
 		return result
 	}
 	return NULL
+}
+
+func evalAssignmentExpression(ae *ast.AssignmentExpression, env *object.Environment) object.Object {
+	name := Eval(ae.Name, env)
+	if isError(name) {
+		return name
+	}
+
+	if ae.Value == nil { panic("nil value")}
+
+	value:= Eval(ae.Value, env)
+	if isError(value) {
+		return value
+	}
+
+	_, exists := env.Get(ae.Name.Value)
+	if !exists {
+		return newError("identifier not found: %s", ae.Name.Value)
+	}
+	env.Set(ae.Name.Value, value)
+
+	return value
 }
 
 func extendFunctionEnv(fn *object.Function, args []object.Object) *object.Environment {

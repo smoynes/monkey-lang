@@ -225,6 +225,19 @@ if (10 > 1) {
 			`fn foo() { return fn bar() { return 1 } }; let a = foo() ; bar()`,
 			"identifier not found: bar",
 		},
+		{
+			`while (a) {}`,
+			`identifier not found: a`,
+		},
+		{
+			`n = 0`,
+			`identifier not found: n`,
+		},
+		{
+			`fn foo() { n = 0 }; foo()`,
+			`identifier not found: n`,
+		},
+
 	}
 
 	for _, tt := range tests {
@@ -628,6 +641,26 @@ func TestWhileExpressions(t *testing.T) {
 		{"let n = 0; while ( n < 5 ) { let n = n + 1 }; n", 5},
 		{"let n = 5; while ( n > 5 ) { let n = n + 1 }; n", 5},
 		{"let n = 10; while ( n > 5 ) { let n = n - 1 }; n", 5},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		integer, ok := tt.expected.(int)
+		if ok {
+			testIntegerObject(t, tt.input, evaluated, int64(integer))
+		} else {
+			testNullObject(t, evaluated)
+		}
+	}
+}
+
+func TestAssignmentExpressions(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{"let n = 0; n = 1", 1},
+		{"let n = 0; n = 1; n", 1},
 	}
 
 	for _, tt := range tests {

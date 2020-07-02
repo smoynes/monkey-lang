@@ -24,6 +24,7 @@ type Parser struct {
 const (
 	_ = iota
 	LOWEST
+	ASSIGN
 	EQUALS
 	LESSGREATER
 	SUM
@@ -39,6 +40,7 @@ type (
 )
 
 var precedences = map[token.TokenType]int{
+	token.ASSIGN:   ASSIGN,
 	token.EQ:       EQUALS,
 	token.NEQ:      EQUALS,
 	token.LT:       LESSGREATER,
@@ -81,6 +83,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parser.registerInfix(token.NEQ, parser.parseInfixExpression)
 	parser.registerInfix(token.LT, parser.parseInfixExpression)
 	parser.registerInfix(token.GT, parser.parseInfixExpression)
+	parser.registerInfix(token.ASSIGN, parser.parseAssignmentExpression)
 
 	// Call expressions have an infix paren: ident _(_ arg , ... )
 	parser.registerInfix(token.LPAREN, parser.parseCallExpression)
@@ -556,6 +559,27 @@ func (parser *Parser) parseCommentStatement() ast.Statement {
 	return statement
 }
 
+func (parser *Parser) parseAssignmentExpression(expr ast.Expression) ast.Expression {
+
+	ident, ok := expr.(*ast.Identifier)
+	if !ok {
+		parser.assignmentExpressionError()
+		return nil
+	}
+	assignment := &ast.AssignmentExpression{
+		Token: parser.currentToken,
+		Name:  ident,
+	}
+
+	parser.nextToken()
+
+	assignment.Value = parser.parseExpression(LOWEST)
+	if assignment.Value == nil {
+		panic("nil assign")
+	}
+	return assignment
+}
+
 func (p *Parser) peekError(t token.TokenType) {
 	msg := fmt.Sprintf(
 		"%d:%d:expected next token to be %s, got %s",
@@ -588,6 +612,15 @@ func (p *Parser) noPrefixParseFnError() {
 func (p *Parser) parseFunctionLiteralError() {
 	msg := fmt.Sprintf(
 		"%d:%d:expected identifier or argument list in function literal, got %q",
+		p.peekToken.Location.Line,
+		p.peekToken.Location.Column,
+		p.peekToken.Type)
+	p.errors = append(p.errors, msg)
+}
+
+func (p *Parser) assignmentExpressionError() {
+	msg := fmt.Sprintf(
+		"%d:%d:expected identifier in assignment expression, got %q",
 		p.peekToken.Location.Line,
 		p.peekToken.Location.Column,
 		p.peekToken.Type)

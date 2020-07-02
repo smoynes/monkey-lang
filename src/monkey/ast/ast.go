@@ -368,3 +368,23 @@ func (we *WhileExpression) String() string {
 
 	return out.String()
 }
+
+type AssignmentExpression struct {
+	Token token.Token
+	Name  *Identifier
+	Value Expression
+}
+
+func (*AssignmentExpression) expressionNode() {}
+func (as *AssignmentExpression) TokenLiteral() string {return as.Token.Literal}
+func (as *AssignmentExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(as.Name.String())
+	out.WriteString(" = ")
+	out.WriteString(as.Value.String())
+
+	return out.String()
+}
+
+

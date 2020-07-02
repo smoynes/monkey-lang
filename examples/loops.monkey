@@ -32,3 +32,8 @@ let array = [0, 1, 2, 3]
 puts(map(array, fn(x) { x * 2 }))
 puts(reduce(array, 0, fn(acc, el) { acc + 1} ))
 puts(sum(array))
+
+let n = 0
+while (n < 5) {
+      n = n + 1;
+}
