@@ -1,6 +1,11 @@
 package token
 
-// Type of a token
+// Package token declares the tokens of the language. An input file is broken down into
+// a stream of tokens by the lexer and passed to the parser.
+
+// TokenType represents a token. Real languages would use a more compact representation
+// for the sake of performance. But, to avoid a lot of boilerplate code to convert to a
+// string for printing, we simple use a string.
 type TokenType string
 
 // All tokens in language.
@@ -11,7 +16,7 @@ const (
 	// Special token used for end of file.
 	EOF = "EOF"
 
-	// Identifier
+	// Identifier: a reference to a variable binding or function.
 	IDENT = "IDENT"
 
 	// Integer literals
@@ -60,24 +65,6 @@ const (
 	COMMENT = "COMMENT"
 )
 
-func NewTokenFromCharacter(t TokenType, ch byte, loc Location) Token {
-	return Token{
-		Type:     t,
-		Literal:  string(ch),
-		Location: loc,
-	}
-}
-
-func NewTokenFromLiteral(t TokenType, lit string, loc Location) Token {
-	newLoc := loc
-	newLoc.Column -= len(lit) - 1
-	return Token{
-		Type:     t,
-		Literal:  lit,
-		Location: newLoc,
-	}
-}
-
 type Token struct {
 	Type     TokenType
 	Literal  string
@@ -89,6 +76,38 @@ type Location struct {
 	Column int
 }
 
+
+// Creates a Token from a single character.
+func NewTokenFromCharacter(t TokenType, ch byte, loc Location) Token {
+	return Token{
+		Type:     t,
+		Literal:  string(ch),
+		Location: loc,
+	}
+}
+
+// Creates a token from a literal string.
+func NewTokenFromLiteral(t TokenType, lit string, loc Location) Token {
+	newLoc := loc
+	newLoc.Column -= len(lit) - 1
+	return Token{
+		Type:     t,
+		Literal:  lit,
+		Location: newLoc,
+	}
+}
+
+// LookupIdent looks up an identifier and returns the identifier's token, either a
+// keyword or binding.
+func LookupIdent(ident string) TokenType {
+	if tok, ok := keywords[ident]; ok {
+		return tok
+	} else {
+		return IDENT
+	}
+}
+
+// Maps keywords to their tokens.
 var keywords = map[string]TokenType{
 	"fn":     FUNCTION,
 	"let":    LET,
@@ -100,10 +119,3 @@ var keywords = map[string]TokenType{
 	"while":  WHILE,
 }
 
-func LookupIdent(ident string) TokenType {
-	if tok, ok := keywords[ident]; ok {
-		return tok
-	} else {
-		return IDENT
-	}
-}
