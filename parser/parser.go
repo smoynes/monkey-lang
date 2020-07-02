@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"monkey/ast"
-	"monkey/lexer"
-	"monkey/token"
+	"github.com/smoynes/monkey-lang/ast"
+	"github.com/smoynes/monkey-lang/lexer"
+	"github.com/smoynes/monkey-lang/token"
 )
 
 type Parser struct {

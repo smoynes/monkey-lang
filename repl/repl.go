@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"io"
 
-	"monkey/lexer"
-	"monkey/parser"
-	"monkey/evaluator"
-	"monkey/object"
+	"github.com/smoynes/monkey-lang/lexer"
+	"github.com/smoynes/monkey-lang/parser"
+	"github.com/smoynes/monkey-lang/evaluator"
+	"github.com/smoynes/monkey-lang/object"
 )
 
 const prompt = ">>> "

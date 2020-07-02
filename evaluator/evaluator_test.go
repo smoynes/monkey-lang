@@ -1,10 +1,11 @@
 package evaluator
 
 import (
-	"monkey/lexer"
-	"monkey/object"
-	"monkey/parser"
 	"testing"
+
+	"github.com/smoynes/monkey-lang/lexer"
+	"github.com/smoynes/monkey-lang/object"
+	"github.com/smoynes/monkey-lang/parser"
 )
 
 func TestEvalIntegerExpression(t *testing.T) {

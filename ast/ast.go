@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"strings"
 
-	"monkey/token"
+	"github.com/smoynes/monkey-lang/token"
 )
 
 // Base interface for every node in AST

@@ -8,11 +8,11 @@ import (
 	"os"
 	"path"
 
-	"monkey/evaluator"
-	"monkey/lexer"
-	"monkey/object"
-	"monkey/parser"
-	"monkey/repl"
+	"github.com/smoynes/monkey-lang/evaluator"
+	"github.com/smoynes/monkey-lang/lexer"
+	"github.com/smoynes/monkey-lang/object"
+	"github.com/smoynes/monkey-lang/parser"
+	"github.com/smoynes/monkey-lang/repl"
 )
 
 var interactive = flag.Bool("i", false, "interactive mode")
