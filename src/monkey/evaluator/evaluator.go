@@ -76,7 +76,12 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalIdentifier(node, env)
 
 	case *ast.FunctionLiteral:
-		fn := &object.Function{Name: node.Ident, Parameters: node.Parameters, Body: node.Body, Env: env}
+		fn := &object.Function{
+			Name:       node.Ident,
+			Parameters: node.Parameters,
+			Body:       node.Body,
+			Env:        env,
+		}
 		env.Set(fn.Name.Value, fn)
 		return fn
 
@@ -119,6 +124,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 
 	case *ast.HashLiteral:
 		return evalHashLiteral(node, env)
+
+	case *ast.WhileExpression:
+		return evalWhileExpression(node, env)
 	}
 
 	panicMsg := fmt.Sprintf("unhandled AST node: %T", node)
@@ -407,6 +415,28 @@ func evalHashIndexExpression(hash, index object.Object) object.Object {
 	}
 
 	return pair.Value
+}
+
+func evalWhileExpression(we *ast.WhileExpression, env *object.Environment) object.Object {
+	var result object.Object
+
+	for {
+		cond := Eval(we.Condition, env)
+		if isError(cond) {
+			return cond
+		}
+
+		if isTruthy(cond) {
+			result = Eval(we.Consequence, env)
+		} else {
+			break
+		}
+	}
+
+	if result != nil {
+		return result
+	}
+	return NULL
 }
 
 func extendFunctionEnv(fn *object.Function, args []object.Object) *object.Environment {

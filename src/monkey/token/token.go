@@ -54,6 +54,7 @@ const (
 	RETURN   = "RETURN"
 	TRUE     = "TRUE"
 	FALSE    = "FALSE"
+	WHILE    = "WHILE"
 
 	// Block comments
 	COMMENT = "COMMENT"
@@ -71,8 +72,8 @@ func NewTokenFromLiteral(t TokenType, lit string, loc Location) Token {
 	newLoc := loc
 	newLoc.Column -= len(lit) - 1
 	return Token{
-		Type: t,
-		Literal: lit,
+		Type:     t,
+		Literal:  lit,
 		Location: newLoc,
 	}
 }
@@ -96,6 +97,7 @@ var keywords = map[string]TokenType{
 	"return": RETURN,
 	"true":   TRUE,
 	"false":  FALSE,
+	"while":  WHILE,
 }
 
 func LookupIdent(ident string) TokenType {
@@ -104,5 +106,4 @@ func LookupIdent(ident string) TokenType {
 	} else {
 		return IDENT
 	}
-
 }

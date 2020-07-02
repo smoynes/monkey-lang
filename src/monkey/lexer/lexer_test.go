@@ -33,7 +33,8 @@ if (5 < 10) {
 [1, 2];
 {"foo": "bar"}
 1 # comment eol
-# comment eof`
+# comment eof
+while (true) { foo }`
 
 	tests := []struct {
 		expectedType    token.TokenType
@@ -131,6 +132,13 @@ if (5 < 10) {
 		{token.INT, "1"},
 		{token.COMMENT, " comment eol"},
 		{token.COMMENT, " comment eof"},
+		{token.WHILE, "while"},
+		{token.LPAREN, "("},
+		{token.TRUE, "true"},
+		{token.RPAREN, ")"},
+		{token.LBRACE, "{"},
+		{token.IDENT, "foo"},
+		{token.RBRACE, "}"},
 		{token.EOF, ""},
 	}
 

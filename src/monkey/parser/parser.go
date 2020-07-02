@@ -69,6 +69,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parser.registerPrefix(token.STRING, parser.parseStringLiteral)
 	parser.registerPrefix(token.LBRACKET, parser.parseArrayLiteral)
 	parser.registerPrefix(token.LBRACE, parser.parseHashLiteral)
+	parser.registerPrefix(token.WHILE, parser.parseWhileExpression)
 
 	parser.infixParseFns = make(map[token.TokenType]infixParseFn)
 	parser.registerInfix(token.PLUS, parser.parseInfixExpression)
@@ -345,6 +346,29 @@ func (parser *Parser) parseIfExpression() ast.Expression {
 
 	return expression
 
+}
+
+func (parser *Parser) parseWhileExpression() ast.Expression {
+	expression := &ast.WhileExpression{Token: parser.currentToken}
+
+	if !parser.expectPeek(token.LPAREN) {
+		return nil
+	}
+
+	parser.nextToken()
+	expression.Condition = parser.parseExpression(LOWEST)
+
+	if !parser.expectPeek(token.RPAREN) {
+		return nil
+	}
+
+	if !parser.expectPeek(token.LBRACE) {
+		return nil
+	}
+
+	expression.Consequence = parser.parseBlockStatement()
+
+	return expression
 }
 
 func (parser *Parser) parseBlockStatement() *ast.BlockStatement {
