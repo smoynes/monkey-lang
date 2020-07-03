@@ -49,6 +49,14 @@ func (l *Lexer) NextToken() token.Token {
 		} else {
 			tok = token.NewTokenFromCharacter(token.BANG, l.ch, l.loc)
 		}
+	case ':':
+		if l.peekChar() == '=' {
+			l.readChar()
+			tok = token.NewTokenFromLiteral(token.BIND, ":=", l.loc)
+		} else {
+			tok = token.NewTokenFromCharacter(token.COLON, l.ch, l.loc)
+		}
+
 	case '"':
 		tok.Type = token.STRING
 		tok.Location = l.loc
@@ -94,8 +102,6 @@ func (l *Lexer) NextToken() token.Token {
 		tok = token.NewTokenFromCharacter(token.SEMICOLON, l.ch, l.loc)
 	case ',':
 		tok = token.NewTokenFromCharacter(token.COMMA, l.ch, l.loc)
-	case ':':
-		tok = token.NewTokenFromCharacter(token.COLON, l.ch, l.loc)
 	default:
 		if isLetter(l.ch) {
 			tok.Literal = l.readIdentifier()

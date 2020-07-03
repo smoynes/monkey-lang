@@ -42,7 +42,7 @@ func TestLetStatements(t *testing.T) {
 	}
 }
 
-func TestAssignmenntExpression(t *testing.T) {
+func TestAssignmentExpression(t *testing.T) {
 	test := "n = 1"
 
 	l := lexer.New(test)
@@ -1200,6 +1200,43 @@ func testIdentifier(t *testing.T, exp ast.Expression, value string) bool {
 	}
 
 	return true
+}
+
+func TestParseBindExpression(t *testing.T) {
+	input := "test := 1"
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Body does not contain %d statements. got=%d\n",
+			1, len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T",
+			program.Statements[0])
+	}
+
+	bind, ok := stmt.Expression.(*ast.BindExpression)
+	if !ok {
+		t.Fatalf("stmt.Expression is not ast.WhileExpressio. got=%T",
+			stmt.Expression)
+	}
+
+	if bind.TokenLiteral() != ":=" {
+		t.Fatalf("TokenLiteral not ':=', got %q", bind.TokenLiteral())
+	}
+
+	if testLiteralExpression(t, bind.Name, "test") {
+		return
+	}
+
+	if testIntegerLiteral(t, bind.Value, 1) {
+		return
+	}
 }
 
 func testBooleanLiteral(t *testing.T, exp ast.Expression, value bool) bool {

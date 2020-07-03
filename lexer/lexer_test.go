@@ -34,7 +34,8 @@ if (5 < 10) {
 {"foo": "bar"}
 1 # comment eol
 # comment eof
-while (true) { foo }`
+while (true) { foo }
+a := 1`
 
 	tests := []struct {
 		expectedType    token.TokenType
@@ -139,6 +140,9 @@ while (true) { foo }`
 		{token.LBRACE, "{"},
 		{token.IDENT, "foo"},
 		{token.RBRACE, "}"},
+		{token.IDENT, "a"},
+		{token.BIND, ":="},
+		{token.INT, "1"},
 		{token.EOF, ""},
 	}
 

@@ -238,6 +238,10 @@ if (10 > 1) {
 			`fn foo() { n = 0 }; foo()`,
 			`identifier not found: n`,
 		},
+		{
+			`let a = 0; a := 1; a`,
+			"identifier previously bound: a",
+		},
 
 	}
 
@@ -662,6 +666,26 @@ func TestAssignmentExpressions(t *testing.T) {
 	}{
 		{"let n = 0; n = 1", 1},
 		{"let n = 0; n = 1; n", 1},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		integer, ok := tt.expected.(int)
+		if ok {
+			testIntegerObject(t, tt.input, evaluated, int64(integer))
+		} else {
+			testNullObject(t, evaluated)
+		}
+	}
+}
+
+func TestBindingExpressions(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{"n := 1", 1},
+		{"n := 1; n", 1},
 	}
 
 	for _, tt := range tests {

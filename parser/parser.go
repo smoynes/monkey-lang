@@ -25,6 +25,7 @@ const (
 	_ = iota
 	LOWEST
 	ASSIGN
+	BIND
 	EQUALS
 	LESSGREATER
 	SUM
@@ -41,6 +42,7 @@ type (
 
 var precedences = map[token.TokenType]int{
 	token.ASSIGN:   ASSIGN,
+	token.BIND:     ASSIGN,
 	token.EQ:       EQUALS,
 	token.NEQ:      EQUALS,
 	token.LT:       LESSGREATER,
@@ -84,6 +86,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parser.registerInfix(token.LT, parser.parseInfixExpression)
 	parser.registerInfix(token.GT, parser.parseInfixExpression)
 	parser.registerInfix(token.ASSIGN, parser.parseAssignmentExpression)
+	parser.registerInfix(token.BIND, parser.parseBindExpression)
 
 	// Call expressions have an infix paren: ident _(_ arg , ... )
 	parser.registerInfix(token.LPAREN, parser.parseCallExpression)
@@ -560,9 +563,25 @@ func (parser *Parser) parseAssignmentExpression(expr ast.Expression) ast.Express
 	parser.nextToken()
 
 	assignment.Value = parser.parseExpression(LOWEST)
-	if assignment.Value == nil {
-		panic("nil assign")
+	return assignment
+}
+
+func (parser *Parser) parseBindExpression(expr ast.Expression) ast.Expression {
+
+	ident, ok := expr.(*ast.Identifier)
+	if !ok {
+		parser.bindExpressionError()
+		return nil
 	}
+	assignment := &ast.BindExpression{
+		Token: parser.currentToken,
+		Name:  ident,
+	}
+
+	parser.nextToken()
+
+	assignment.Value = parser.parseExpression(LOWEST)
+
 	return assignment
 }
 
@@ -607,6 +626,15 @@ func (p *Parser) parseFunctionLiteralError() {
 func (p *Parser) assignmentExpressionError() {
 	msg := fmt.Sprintf(
 		"%d:%d:expected identifier in assignment expression, got %q",
+		p.peekToken.Location.Line,
+		p.peekToken.Location.Column,
+		p.peekToken.Type)
+	p.errors = append(p.errors, msg)
+}
+
+func (p *Parser) bindExpressionError() {
+	msg := fmt.Sprintf(
+		"%d:%d:expected identifier in binding expression, got %q",
 		p.peekToken.Location.Line,
 		p.peekToken.Location.Column,
 		p.peekToken.Type)

@@ -130,6 +130,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 
 	case *ast.AssignmentExpression:
 		return evalAssignmentExpression(node, env)
+
+	case *ast.BindExpression:
+		return evalBindExpression(node, env)
 	}
 
 	panicMsg := fmt.Sprintf("unhandled AST node: %T", node)
@@ -448,9 +451,7 @@ func evalAssignmentExpression(ae *ast.AssignmentExpression, env *object.Environm
 		return name
 	}
 
-	if ae.Value == nil { panic("nil value")}
-
-	value:= Eval(ae.Value, env)
+	value := Eval(ae.Value, env)
 	if isError(value) {
 		return value
 	}
@@ -460,6 +461,21 @@ func evalAssignmentExpression(ae *ast.AssignmentExpression, env *object.Environm
 		return newError("identifier not found: %s", ae.Name.Value)
 	}
 	env.Set(ae.Name.Value, value)
+
+	return value
+}
+
+func evalBindExpression(be *ast.BindExpression, env *object.Environment) object.Object {
+	value := Eval(be.Value, env)
+	if isError(value) {
+		return value
+	}
+
+	_, exists := env.Get(be.Name.Value)
+	if exists {
+		return newError("identifier previously bound: %s", be.Name.Value)
+	}
+	env.Set(be.Name.Value, value)
 
 	return value
 }

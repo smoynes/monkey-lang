@@ -387,4 +387,20 @@ func (as *AssignmentExpression) String() string {
 	return out.String()
 }
 
+type BindExpression struct {
+	Token token.Token
+	Name  *Identifier
+	Value Expression
+}
 
+func (*BindExpression) expressionNode() {}
+func (be *BindExpression) TokenLiteral() string {return be.Token.Literal}
+func (be *BindExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(be.Name.String())
+	out.WriteString(" := ")
+	out.WriteString(be.Value.String())
+
+	return out.String()
+}

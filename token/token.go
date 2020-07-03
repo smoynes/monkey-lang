@@ -27,6 +27,7 @@ const (
 
 	// Operators
 	ASSIGN   = "ASSIGN"
+	BIND     = ":="
 	PLUS     = "+"
 	MINUS    = "-"
 	BANG     = "!"
@@ -118,4 +119,3 @@ var keywords = map[string]TokenType{
 	"false":  FALSE,
 	"while":  WHILE,
 }
-
