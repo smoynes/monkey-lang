@@ -320,16 +320,9 @@ func (parser *Parser) parseGroupedExpression() ast.Expression {
 func (parser *Parser) parseIfExpression() ast.Expression {
 	expression := &ast.IfExpression{Token: parser.currentToken}
 
-	if !parser.expectPeek(token.LPAREN) {
-		return nil
-	}
-
 	parser.nextToken()
-	expression.Condition = parser.parseExpression(LOWEST)
 
-	if !parser.expectPeek(token.RPAREN) {
-		return nil
-	}
+	expression.Condition = parser.parseExpression(LOWEST)
 
 	if !parser.expectPeek(token.LBRACE) {
 		return nil
@@ -354,16 +347,9 @@ func (parser *Parser) parseIfExpression() ast.Expression {
 func (parser *Parser) parseWhileExpression() ast.Expression {
 	expression := &ast.WhileExpression{Token: parser.currentToken}
 
-	if !parser.expectPeek(token.LPAREN) {
-		return nil
-	}
-
 	parser.nextToken()
-	expression.Condition = parser.parseExpression(LOWEST)
 
-	if !parser.expectPeek(token.RPAREN) {
-		return nil
-	}
+	expression.Condition = parser.parseExpression(LOWEST)
 
 	if !parser.expectPeek(token.LBRACE) {
 		return nil
